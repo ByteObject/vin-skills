@@ -42,13 +42,22 @@ When the user asks to find repos **similar to** a specific repo, do NOT guess wh
    grep -i "keyword3" /tmp/starred_repos.txt
    ```
 
-4. **Also search for synonyms and related concepts** that the description implies but doesn't explicitly state. For example:
-   - "orchestration" → also search "coordinat", "workflow", "pipeline"
-   - "zero-human" → also search "autonomous", "automat", "no.human", "unmanned"
-   - "agents" → also search "agent", "multi.agent", "swarm", "crew", "teammate"
-   - "platform" → also search "framework", "sdk", "toolkit"
+4. **Also search for synonyms and related concepts** that the description implies but doesn't explicitly state. Think about how DIFFERENT people describe the SAME concept. For example:
+   - "orchestration" → also search "coordinat", "workflow", "pipeline", "dispatch"
+   - "zero-human" → also search "autonomous", "automat", "no.human", "unmanned", "self.run"
+   - "agents" → also search "agent", "multi.agent", "swarm", "crew", "teammate", "coworker", "colleague", "copilot", "assistant", "worker", "bot"
+   - "platform" → also search "framework", "sdk", "toolkit", "infrastructure"
+   - "tasks" → also search "task", "issue", "ticket", "assign", "job", "work"
+   - "memory" → also search "context", "knowledge", "persist", "state", "recall"
 
-5. **Combine, deduplicate, and rank** all results by relevance before presenting.
+5. **Use a broad OR-pattern grep** to search many synonyms at once instead of running them one by one:
+   ```bash
+   grep -iE "agent|teammate|coworker|copilot|assistant|worker" /tmp/starred_repos.txt
+   grep -iE "orchestrat|coordinat|workflow|dispatch|pipeline" /tmp/starred_repos.txt
+   grep -iE "autonom|automat|self.run|zero.human" /tmp/starred_repos.txt
+   ```
+
+6. **Combine, deduplicate, and rank** all results by relevance before presenting.
 
 **Why this matters:** Repos that are conceptually similar often use completely different vocabulary. A repo described as "Turn coding agents into real teammates" is very similar to "orchestration for zero-human companies" but shares zero keywords. Searching only for obvious terms will miss these matches.
 
