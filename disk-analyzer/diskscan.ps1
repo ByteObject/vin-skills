@@ -36,6 +36,25 @@ function Format-Delta($deltaMB) {
     return "  ({0}{1:N0} MB)" -f $sign, $deltaMB
 }
 
+# Uniformly read keys/values whether $folders is a Hashtable (fresh snapshot,
+# built in memory) or a PSCustomObject (previous snapshot, deserialized from JSON).
+function Get-FolderKeys($folders) {
+    if ($null -eq $folders) { return @() }
+    if ($folders -is [hashtable]) { return @($folders.Keys) }
+    return @($folders.PSObject.Properties.Name)
+}
+
+function Get-FolderValue($folders, $key) {
+    if ($null -eq $folders) { return 0 }
+    if ($folders -is [hashtable]) {
+        if ($folders.ContainsKey($key)) { return [int]$folders[$key] }
+        return 0
+    }
+    $prop = $folders.PSObject.Properties[$key]
+    if ($prop) { return [int]$prop.Value }
+    return 0
+}
+
 # ── Drive summary ──
 Write-Host "============================================"
 Write-Host "  Disk Space Analysis Report"
@@ -201,14 +220,14 @@ if ($allSnapshots.Count -ge 2) {
     # Folder deltas — only show changes > 50 MB
     Write-Host "=== Folder Changes (>50 MB delta) ==="
     $allKeys = @()
-    $allKeys += $snapshot.folders.PSObject.Properties.Name
-    $allKeys += $prev.folders.PSObject.Properties.Name
+    $allKeys += Get-FolderKeys $snapshot.folders
+    $allKeys += Get-FolderKeys $prev.folders
     $allKeys = $allKeys | Sort-Object -Unique
 
     $changes = @()
     foreach ($key in $allKeys) {
-        $nowMB = if ($snapshot.folders.PSObject.Properties[$key]) { $snapshot.folders.$key } else { 0 }
-        $prevMB = if ($prev.folders.PSObject.Properties[$key]) { $prev.folders.$key } else { 0 }
+        $nowMB  = Get-FolderValue $snapshot.folders $key
+        $prevMB = Get-FolderValue $prev.folders     $key
         $delta = $nowMB - $prevMB
         if ([math]::Abs($delta) -gt 50) {
             $changes += [PSCustomObject]@{
