@@ -24,26 +24,119 @@
   .card-head strong { font-size: 12px; }
   .toolbar { position: sticky; top: 0; background: #1f2430; padding: 8px 0 10px; margin: -16px -16px 12px -16px; padding: 12px 16px; border-bottom: 1px solid #323847; z-index: 2; display: flex; gap: 6px; flex-wrap: wrap; }
   .preview { overflow-y: auto; padding: 24px; background: #eef1f4; }
-  .page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 18mm; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.12); overflow: hidden; border-radius: 4px; }
   @media print {
     .app { display: block; }
     .editor { display: none; }
     .preview { padding: 0; background: white; overflow: visible; }
     .page { box-shadow: none; margin: 0; padding: 0; width: auto; min-height: auto; }
   }
-  @page { size: A4; margin: 18mm; }
-  /* resume styles (mirror skill template) */
-  .page h1.name { margin: 0; font-size: 22pt; }
-  .page h2 { margin-top: 18px; margin-bottom: 6px; padding-bottom: 3px; border-bottom: 2px solid #333; font-size: 13pt; text-transform: uppercase; letter-spacing: 0.5px; }
-  .page h3 { margin: 10px 0 2px; font-size: 11.5pt; }
-  .page { font-size: 11pt; line-height: 1.45; color: #222; }
-  .page .header { display: flex; justify-content: space-between; align-items: flex-start; }
-  .page .contact { text-align: right; font-size: 10pt; }
-  .page .role { color: #555; font-style: italic; }
-  .page ul, .page ol { margin: 4px 0 8px 18px; padding: 0; }
-  .page li { margin: 2px 0; }
-  .page .meta { float: right; color: #666; font-size: 10pt; }
-  .page .new { background: #fff7c2; padding: 0 2px; }
+  @page { size: A4; margin: 0; }
+  /* ===== Modern resume design ===== */
+  .page {
+    font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: #24303f;
+    padding: 0 !important;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 297mm;
+    overflow: hidden;
+  }
+  .page .sidebar {
+    background: #1e2a3a;
+    color: #e7ecf3;
+    padding: 28px 22px;
+  }
+  .page .sidebar h2 {
+    font-size: 10pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    margin: 22px 0 8px;
+    color: #7dd3fc;
+    border: none;
+    padding: 0;
+  }
+  .page .sidebar h2:first-child { margin-top: 0; }
+  .page .sidebar .avatar {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: white; font-size: 38pt; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+  .page .sidebar .name-block { text-align: center; margin-bottom: 16px; }
+  .page .sidebar h1.name {
+    font-size: 16pt; font-weight: 700; margin: 0 0 2px; color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .page .sidebar .role {
+    font-size: 9.5pt; color: #94a3b8; font-style: normal;
+    text-transform: uppercase; letter-spacing: 1.5px;
+  }
+  .page .sidebar .contact-item {
+    font-size: 9pt; margin: 4px 0; color: #cbd5e1;
+    word-break: break-word;
+  }
+  .page .sidebar ul {
+    list-style: none; margin: 0; padding: 0;
+  }
+  .page .sidebar li {
+    font-size: 9.5pt; margin: 4px 0; color: #cbd5e1;
+  }
+  .page .sidebar li strong { color: #f1f5f9; display: block; font-size: 9pt; margin-top: 6px; }
+  .page .sidebar ul li:first-child strong { margin-top: 0; }
+
+  .page .main {
+    padding: 28px 30px;
+    background: white;
+  }
+  .page .main h2 {
+    font-size: 11.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #0f172a;
+    margin: 0 0 10px;
+    padding: 0 0 6px;
+    border: none;
+    position: relative;
+  }
+  .page .main h2::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 32px; height: 3px;
+    background: #3b82f6;
+    border-radius: 2px;
+  }
+  .page .main section { margin-bottom: 18px; }
+  .page .main section:last-child { margin-bottom: 0; }
+  .page .main h3 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    margin: 10px 0 1px;
+    color: #1e293b;
+  }
+  .page .main h3 .company { color: #3b82f6; font-weight: 600; }
+  .page .main .meta {
+    float: right; color: #64748b; font-size: 9pt;
+    font-weight: 500; margin-top: 2px;
+  }
+  .page .main ul, .page .main ol {
+    margin: 4px 0 10px 0;
+    padding-left: 16px;
+  }
+  .page .main ul li, .page .main ol li {
+    margin: 2px 0;
+    color: #334155;
+    font-size: 10pt;
+  }
+  .page .main ul li::marker { color: #3b82f6; }
+  .page .main p { margin: 2px 0 8px; color: #334155; }
+  .page .new { background: linear-gradient(120deg,#fef3c7 0%,#fde68a 100%); padding: 0 3px; border-radius: 2px; }
   @media print { .page .new { background: transparent; } }
   .hint { font-size: 10px; color: #6b7280; margin-top: 2px; }
 </style>
@@ -173,35 +266,47 @@ function markNew(s) {
 
 function renderPreview() {
   const p = document.getElementById('page');
+  const initials = (data.name||'').trim().split(/\s+/).map(s=>s[0]||'').join('').slice(0,2).toUpperCase();
   p.innerHTML = `
-    <div class="header">
-      <div>
+    <aside class="sidebar">
+      <div class="name-block">
+        <div class="avatar">${esc(initials)}</div>
         <h1 class="name">${esc(data.name)}</h1>
         <div class="role">${esc(data.title)}</div>
       </div>
-      <div class="contact">
-        ${esc(data.location)}<br/>
-        ${esc(data.phone)}<br/>
-        ${esc(data.email)}<br/>
-        ${esc(data.website)}
-      </div>
+      <h2>Contact</h2>
+      ${data.location ? `<div class="contact-item">📍 ${esc(data.location)}</div>` : ''}
+      ${data.phone    ? `<div class="contact-item">📱 ${esc(data.phone)}</div>` : ''}
+      ${data.email    ? `<div class="contact-item">✉ ${esc(data.email)}</div>` : ''}
+      ${data.website  ? `<div class="contact-item">🌐 ${esc(data.website)}</div>` : ''}
+
+      ${data.skills.length ? `<h2>Skills</h2><ul>${data.skills.map(s=>`<li><strong>${esc(s.label)}</strong>${markNew(esc(s.value))}</li>`).join('')}</ul>` : ''}
+
+      ${data.languages.length ? `<h2>Languages</h2><ul>${data.languages.map(l=>`<li><strong>${esc(l.label)}</strong>${esc(l.value)}</li>`).join('')}</ul>` : ''}
+
+      ${data.additional.length ? `<h2>Additional</h2><ul>${data.additional.map(a=>`<li><strong>${esc(a.label)}</strong>${markNew(esc(a.value))}</li>`).join('')}</ul>` : ''}
+    </aside>
+    <div class="main">
+      ${data.summary ? `<section><h2>Profile</h2><p>${markNew(esc(data.summary))}</p></section>` : ''}
+
+      ${data.experience.length ? `<section><h2>Work Experience</h2>
+        ${data.experience.map(e => `
+          <h3>${esc(e.role)} <span class="company">· ${esc(e.company)}</span><span class="meta">${esc(e.dates)}</span></h3>
+          <ul>${nl2li(e.bullets)}</ul>
+        `).join('')}
+      </section>` : ''}
+
+      ${data.education.length ? `<section><h2>Education</h2>
+        ${data.education.map(e => `
+          <h3>${esc(e.degree)} <span class="company">· ${esc(e.school)}</span><span class="meta">${esc(e.dates)}</span></h3>
+          <ul>${nl2li(e.bullets)}</ul>
+        `).join('')}
+      </section>` : ''}
+
+      ${data.projects.length ? `<section><h2>Personal Projects</h2>
+        <ol>${data.projects.map(p=>`<li><strong>${esc(p.name)}</strong> — ${markNew(esc(p.desc))}</li>`).join('')}</ol>
+      </section>` : ''}
     </div>
-    <h2>Summary</h2>
-    <p>${markNew(esc(data.summary))}</p>
-    ${data.experience.length ? '<h2>Work Experience</h2>' : ''}
-    ${data.experience.map(e => `
-      <h3>${esc(e.role)} &mdash; ${esc(e.company)} <span class="meta">${esc(e.dates)}</span></h3>
-      <ul>${nl2li(e.bullets)}</ul>
-    `).join('')}
-    ${data.education.length ? '<h2>Education</h2>' : ''}
-    ${data.education.map(e => `
-      <h3>${esc(e.degree)} &mdash; ${esc(e.school)} <span class="meta">${esc(e.dates)}</span></h3>
-      <ul>${nl2li(e.bullets)}</ul>
-    `).join('')}
-    ${data.skills.length ? '<h2>Skills</h2><ul>' + data.skills.map(s=>`<li><strong>${esc(s.label)}:</strong> ${markNew(esc(s.value))}</li>`).join('') + '</ul>' : ''}
-    ${data.projects.length ? '<h2>Personal Projects</h2><ol>' + data.projects.map(p=>`<li><strong>${esc(p.name)}</strong> &mdash; ${markNew(esc(p.desc))}</li>`).join('') + '</ol>' : ''}
-    ${data.languages.length ? '<h2>Languages</h2><ul>' + data.languages.map(l=>`<li><strong>${esc(l.label)}:</strong> ${esc(l.value)}</li>`).join('') + '</ul>' : ''}
-    ${data.additional.length ? '<h2>Additional Information</h2><ul>' + data.additional.map(a=>`<li><strong>${esc(a.label)}:</strong> ${markNew(esc(a.value))}</li>`).join('') + '</ul>' : ''}
   `;
 }
 
@@ -273,23 +378,16 @@ document.addEventListener('input', e => {
 function exportPDF() { window.print(); }
 
 function downloadHTML() {
-  const css = document.querySelector('style').textContent;
+  const styleText = document.querySelector('style').textContent;
+  const pageHTML = document.getElementById('page').outerHTML;
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(data.name)} - Resume</title>
-<style>
-@page { size: A4; margin: 18mm; }
-body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #222; line-height: 1.45; max-width: 800px; margin: 0 auto; padding: 24px; }
-h1.name { margin: 0; font-size: 22pt; }
-h2 { margin-top: 18px; margin-bottom: 6px; padding-bottom: 3px; border-bottom: 2px solid #333; font-size: 13pt; text-transform: uppercase; letter-spacing: 0.5px; }
-h3 { margin: 10px 0 2px; font-size: 11.5pt; }
-.header { display: flex; justify-content: space-between; align-items: flex-start; }
-.contact { text-align: right; font-size: 10pt; }
-.role { color: #555; font-style: italic; }
-ul, ol { margin: 4px 0 8px 18px; padding: 0; }
-li { margin: 2px 0; }
-.meta { float: right; color: #666; font-size: 10pt; }
-.new { background: #fff7c2; padding: 0 2px; }
-@media print { .new { background: transparent; } }
-</style></head><body>${document.getElementById('page').innerHTML}</body></html>`;
+<style>${styleText}
+/* Standalone overrides: hide editor chrome, make page fill print area */
+body { background: white; margin: 0; }
+.page { box-shadow: none; margin: 0 auto; border-radius: 0; }
+@page { size: A4; margin: 0; }
+@media print { .page { width: 210mm; min-height: 297mm; } }
+</style></head><body>${pageHTML}</body></html>`;
   const blob = new Blob([html], {type:'text/html'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
