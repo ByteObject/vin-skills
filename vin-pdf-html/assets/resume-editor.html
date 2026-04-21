@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Resume Editor - vin-pdf-html</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: "Segoe UI", Arial, sans-serif; background: #eef1f4; color: #222; }
+  .app { display: grid; grid-template-columns: 420px 1fr; height: 100vh; }
+  .editor { background: #1f2430; color: #e6e9ef; overflow-y: auto; padding: 16px; }
+  .editor h2 { margin: 18px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; color: #9aa5b1; border-bottom: 1px solid #323847; padding-bottom: 4px; }
+  .editor h1 { margin: 0 0 6px; font-size: 18px; }
+  .editor label { display: block; font-size: 11px; color: #9aa5b1; margin: 6px 0 2px; }
+  .editor input, .editor textarea { width: 100%; background: #2a3040; color: #e6e9ef; border: 1px solid #3a4255; border-radius: 4px; padding: 6px 8px; font: inherit; font-size: 12px; }
+  .editor textarea { min-height: 60px; resize: vertical; font-family: Consolas, monospace; font-size: 11px; }
+  .editor button { background: #3b82f6; color: white; border: 0; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 4px; }
+  .editor button.ghost { background: transparent; border: 1px solid #3a4255; color: #9aa5b1; }
+  .editor button.danger { background: #b91c1c; }
+  .editor button:hover { filter: brightness(1.1); }
+  .row { display: flex; gap: 6px; }
+  .row > * { flex: 1; }
+  .card { background: #262c3a; border: 1px solid #323847; border-radius: 6px; padding: 10px; margin: 8px 0; }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .card-head strong { font-size: 12px; }
+  .toolbar { position: sticky; top: 0; background: #1f2430; padding: 8px 0 10px; margin: -16px -16px 12px -16px; padding: 12px 16px; border-bottom: 1px solid #323847; z-index: 2; display: flex; gap: 6px; flex-wrap: wrap; }
+  .preview { overflow-y: auto; padding: 24px; background: #eef1f4; }
+  .page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 18mm; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  @media print {
+    .app { display: block; }
+    .editor { display: none; }
+    .preview { padding: 0; background: white; overflow: visible; }
+    .page { box-shadow: none; margin: 0; padding: 0; width: auto; min-height: auto; }
+  }
+  @page { size: A4; margin: 18mm; }
+  /* resume styles (mirror skill template) */
+  .page h1.name { margin: 0; font-size: 22pt; }
+  .page h2 { margin-top: 18px; margin-bottom: 6px; padding-bottom: 3px; border-bottom: 2px solid #333; font-size: 13pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  .page h3 { margin: 10px 0 2px; font-size: 11.5pt; }
+  .page { font-size: 11pt; line-height: 1.45; color: #222; }
+  .page .header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .page .contact { text-align: right; font-size: 10pt; }
+  .page .role { color: #555; font-style: italic; }
+  .page ul, .page ol { margin: 4px 0 8px 18px; padding: 0; }
+  .page li { margin: 2px 0; }
+  .page .meta { float: right; color: #666; font-size: 10pt; }
+  .page .new { background: #fff7c2; padding: 0 2px; }
+  @media print { .page .new { background: transparent; } }
+  .hint { font-size: 10px; color: #6b7280; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="editor" id="editor">
+    <div class="toolbar">
+      <button onclick="exportPDF()">🖨️ Print / Save as PDF</button>
+      <button class="ghost" onclick="downloadHTML()">💾 Download HTML</button>
+      <button class="ghost" onclick="saveJSON()">📥 Save JSON</button>
+      <button class="ghost" onclick="loadJSON()">📂 Load JSON</button>
+      <button class="ghost" onclick="resetData()">🔄 Reset</button>
+    </div>
+    <h1>Resume Editor</h1>
+    <div class="hint">Edit on the left, live preview on the right. All data is saved to your browser automatically.</div>
+
+    <h2>Header</h2>
+    <label>Full Name</label><input data-bind="name" />
+    <label>Title / Role</label><input data-bind="title" />
+    <div class="row">
+      <div><label>Location</label><input data-bind="location" /></div>
+      <div><label>Phone</label><input data-bind="phone" /></div>
+    </div>
+    <div class="row">
+      <div><label>Email</label><input data-bind="email" /></div>
+      <div><label>Website</label><input data-bind="website" /></div>
+    </div>
+
+    <h2>Summary</h2>
+    <textarea data-bind="summary"></textarea>
+
+    <h2>Work Experience <button class="ghost" onclick="addItem('experience')">+ Add</button></h2>
+    <div id="experience"></div>
+
+    <h2>Education <button class="ghost" onclick="addItem('education')">+ Add</button></h2>
+    <div id="education"></div>
+
+    <h2>Skills <button class="ghost" onclick="addItem('skills')">+ Add</button></h2>
+    <div id="skills"></div>
+
+    <h2>Personal Projects <button class="ghost" onclick="addItem('projects')">+ Add</button></h2>
+    <div id="projects"></div>
+
+    <h2>Languages <button class="ghost" onclick="addItem('languages')">+ Add</button></h2>
+    <div id="languages"></div>
+
+    <h2>Additional Info <button class="ghost" onclick="addItem('additional')">+ Add</button></h2>
+    <div id="additional"></div>
+
+    <div style="height:40px"></div>
+  </aside>
+
+  <main class="preview">
+    <div class="page" id="page"></div>
+  </main>
+</div>
+
+<script>
+const STORAGE_KEY = 'vin-pdf-html-resume';
+
+const DEFAULTS = {
+  name: 'Vincent Chan',
+  title: 'Programmer',
+  location: 'Hong Kong',
+  phone: '852-55114195',
+  email: 'hkvincentchan@gmail.com',
+  website: 'vincentchan.info/',
+  summary: 'As a self-motivated programmer, I can work independently and possess a team-oriented mindset. My experience includes leading small development teams, implementing cutting-edge technologies, and contributing to diverse projects that have enriched my technical expertise and problem-solving abilities.',
+  experience: [
+    { role: 'Developer', company: 'Yesstyle', dates: '11/2021 - Present', bullets: 'System Analyst: Manage sub-team, handle SOWs and function specs.\nSenior Analyst Programmer II: Lead team of 2 developers, code review, CI/CD.\nTech stack: NextJS, Springboot, Hibernate, Flutter.' },
+    { role: 'Analyst Programmer', company: 'Varmeego', dates: '06/2018 - 11/2021', bullets: 'Designed and maintained applications using JAVA, Reactjs.\nProjects: ParknShop Eshop, Watson Eshop, Clickstream analytics.' }
+  ],
+  education: [
+    { degree: 'Bachelor of Computing', school: 'University of Teesside', dates: '2017 - 2018', bullets: 'First Class Honours.\nActive member of the university computing group.' },
+    { degree: 'Associate Degree of Computing', school: 'Hong Kong Institute of Technology', dates: '2015 - 2017', bullets: 'Graduated with High Distinction.\nTop positions in class programming competitions.' }
+  ],
+  skills: [
+    { label: 'Programming Languages', value: 'Java, JavaScript, TypeScript, Dart. Experience with C#, Kotlin, Python.' },
+    { label: 'Frontend', value: 'NextJS (App & Page Router), React, Vue2, AngularJS, Flutter.' },
+    { label: 'Backend', value: 'SpringBoot, SpringCloud (Nacos, Ribbon, OpenFeign, Sentinel), SSM.' },
+    { label: 'Database', value: 'MySQL, SQL Server, Oracle, PostgreSQL, Supabase (Vector DB), Redis, MongoDB.' },
+    { label: 'CI/CD', value: 'Docker, Jenkins, Fastlane.' },
+    { label: 'AI / Agentic AI', value: '[new]MCP (building/integrating MCP servers), Skills, multi-Agent workflows (Claude Code, sub-agents).[/new] RAG systems, Stable Diffusion (T2I/I2I/V2V), Whisper + LLM translation, LLM API integration (OpenAI / Claude / Gemini).' }
+  ],
+  projects: [
+    { name: 'AI Deployment Platform', desc: '[new]Deploy your own AI Agent in one click — end-to-end platform for provisioning and shipping custom AI agents without manual DevOps.[/new]' },
+    { name: 'AI Image Transformation', desc: '[new]Uses high-end diffusion models to transform user-uploaded images (style transfer, restoration, image-to-image).[/new]' },
+    { name: 'AI Music Master', desc: '[new]Generative AI that composes music in any style on demand, from prompt to finished track.[/new]' },
+    { name: 'AI IDE', desc: '[new]AI-driven web builder that lets non-programmers create and ship websites via natural language.[/new]' },
+    { name: 'NextJS Deployments', desc: 'Multiple NextJS projects deployed on Vercel with modern web practices.' },
+    { name: 'Lucene-Based Search Tool', desc: 'Search tool built on Lucene with efficient indexing.' },
+    { name: 'Web Storage Website', desc: 'Self-hosted storage solution using Docker and Docker Compose.' }
+  ],
+  languages: [
+    { label: 'Cantonese', value: 'Native proficiency.' },
+    { label: 'English', value: 'Intermediate proficiency.' },
+    { label: 'Mandarin', value: 'Proficient (business and casual).' }
+  ],
+  additional: [
+    { label: 'Cloud Computing', value: 'Amazon EC2, S3, Alibaba Cloud.' },
+    { label: 'Mobile Apps', value: 'Published "vpedometer" and "wevchat" on Google Play.' },
+    { label: 'Leadership', value: 'Proven ability leading small dev teams across functions.' }
+  ]
+};
+
+let data = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return structuredClone(DEFAULTS);
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function esc(s) { return (s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function nl2li(s) {
+  return (s||'').split('\n').filter(x=>x.trim()).map(x=>`<li>${markNew(esc(x))}</li>`).join('');
+}
+function markNew(s) {
+  return s.replace(/\[new\]([\s\S]*?)\[\/new\]/g, '<span class="new">$1</span>');
+}
+
+function renderPreview() {
+  const p = document.getElementById('page');
+  p.innerHTML = `
+    <div class="header">
+      <div>
+        <h1 class="name">${esc(data.name)}</h1>
+        <div class="role">${esc(data.title)}</div>
+      </div>
+      <div class="contact">
+        ${esc(data.location)}<br/>
+        ${esc(data.phone)}<br/>
+        ${esc(data.email)}<br/>
+        ${esc(data.website)}
+      </div>
+    </div>
+    <h2>Summary</h2>
+    <p>${markNew(esc(data.summary))}</p>
+    ${data.experience.length ? '<h2>Work Experience</h2>' : ''}
+    ${data.experience.map(e => `
+      <h3>${esc(e.role)} &mdash; ${esc(e.company)} <span class="meta">${esc(e.dates)}</span></h3>
+      <ul>${nl2li(e.bullets)}</ul>
+    `).join('')}
+    ${data.education.length ? '<h2>Education</h2>' : ''}
+    ${data.education.map(e => `
+      <h3>${esc(e.degree)} &mdash; ${esc(e.school)} <span class="meta">${esc(e.dates)}</span></h3>
+      <ul>${nl2li(e.bullets)}</ul>
+    `).join('')}
+    ${data.skills.length ? '<h2>Skills</h2><ul>' + data.skills.map(s=>`<li><strong>${esc(s.label)}:</strong> ${markNew(esc(s.value))}</li>`).join('') + '</ul>' : ''}
+    ${data.projects.length ? '<h2>Personal Projects</h2><ol>' + data.projects.map(p=>`<li><strong>${esc(p.name)}</strong> &mdash; ${markNew(esc(p.desc))}</li>`).join('') + '</ol>' : ''}
+    ${data.languages.length ? '<h2>Languages</h2><ul>' + data.languages.map(l=>`<li><strong>${esc(l.label)}:</strong> ${esc(l.value)}</li>`).join('') + '</ul>' : ''}
+    ${data.additional.length ? '<h2>Additional Information</h2><ul>' + data.additional.map(a=>`<li><strong>${esc(a.label)}:</strong> ${markNew(esc(a.value))}</li>`).join('') + '</ul>' : ''}
+  `;
+}
+
+const FIELDS = {
+  experience: [['role','Role'],['company','Company'],['dates','Dates'],['bullets','Bullets (one per line)','textarea']],
+  education:  [['degree','Degree'],['school','School'],['dates','Dates'],['bullets','Bullets','textarea']],
+  skills:     [['label','Category'],['value','Items — use [new]...[/new] to highlight','textarea']],
+  projects:   [['name','Project Name'],['desc','Description — use [new]...[/new] to highlight','textarea']],
+  languages:  [['label','Language'],['value','Level']],
+  additional: [['label','Label'],['value','Detail','textarea']]
+};
+
+function renderList(key) {
+  const box = document.getElementById(key);
+  box.innerHTML = data[key].map((item, i) => `
+    <div class="card">
+      <div class="card-head">
+        <strong>#${i+1}</strong>
+        <div>
+          <button class="ghost" onclick="move('${key}',${i},-1)">↑</button>
+          <button class="ghost" onclick="move('${key}',${i},1)">↓</button>
+          <button class="danger" onclick="remove('${key}',${i})">✕</button>
+        </div>
+      </div>
+      ${FIELDS[key].map(([f,label,type]) => `
+        <label>${label}</label>
+        ${type==='textarea'
+          ? `<textarea data-list="${key}" data-idx="${i}" data-field="${f}">${esc(item[f]||'')}</textarea>`
+          : `<input data-list="${key}" data-idx="${i}" data-field="${f}" value="${esc(item[f]||'')}" />`
+        }
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function renderAll() {
+  document.querySelectorAll('[data-bind]').forEach(el => { el.value = data[el.dataset.bind] || ''; });
+  Object.keys(FIELDS).forEach(renderList);
+  renderPreview();
+}
+
+function addItem(key) {
+  const blank = Object.fromEntries(FIELDS[key].map(([f])=>[f,'']));
+  data[key].push(blank);
+  save(); renderList(key); renderPreview();
+}
+function remove(key, i) {
+  if (!confirm('Remove this entry?')) return;
+  data[key].splice(i,1);
+  save(); renderList(key); renderPreview();
+}
+function move(key, i, dir) {
+  const j = i + dir;
+  if (j<0 || j>=data[key].length) return;
+  [data[key][i], data[key][j]] = [data[key][j], data[key][i]];
+  save(); renderList(key); renderPreview();
+}
+
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.bind) {
+    data[t.dataset.bind] = t.value;
+  } else if (t.dataset.list) {
+    data[t.dataset.list][+t.dataset.idx][t.dataset.field] = t.value;
+  } else return;
+  save(); renderPreview();
+});
+
+function exportPDF() { window.print(); }
+
+function downloadHTML() {
+  const css = document.querySelector('style').textContent;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(data.name)} - Resume</title>
+<style>
+@page { size: A4; margin: 18mm; }
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #222; line-height: 1.45; max-width: 800px; margin: 0 auto; padding: 24px; }
+h1.name { margin: 0; font-size: 22pt; }
+h2 { margin-top: 18px; margin-bottom: 6px; padding-bottom: 3px; border-bottom: 2px solid #333; font-size: 13pt; text-transform: uppercase; letter-spacing: 0.5px; }
+h3 { margin: 10px 0 2px; font-size: 11.5pt; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; }
+.contact { text-align: right; font-size: 10pt; }
+.role { color: #555; font-style: italic; }
+ul, ol { margin: 4px 0 8px 18px; padding: 0; }
+li { margin: 2px 0; }
+.meta { float: right; color: #666; font-size: 10pt; }
+.new { background: #fff7c2; padding: 0 2px; }
+@media print { .new { background: transparent; } }
+</style></head><body>${document.getElementById('page').innerHTML}</body></html>`;
+  const blob = new Blob([html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${data.name.replace(/\s+/g,'_')}_Resume.html`;
+  a.click();
+}
+
+function saveJSON() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${data.name.replace(/\s+/g,'_')}_Resume.json`;
+  a.click();
+}
+
+function loadJSON() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'application/json';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try { data = JSON.parse(ev.target.result); save(); renderAll(); }
+      catch { alert('Invalid JSON'); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+function resetData() {
+  if (!confirm('Reset to default sample data? This cannot be undone.')) return;
+  data = structuredClone(DEFAULTS); save(); renderAll();
+}
+
+renderAll();
+</script>
+</body>
+</html>
