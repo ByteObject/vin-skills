@@ -160,7 +160,7 @@
   }
   .page .main p { margin: 2px 0 8px; color: #334155; white-space: pre-wrap; }
   .page .main li, .page .sidebar li, .page .sidebar .contact-item { white-space: pre-wrap; }
-  .page .new { background: linear-gradient(120deg,#fef3c7 0%,#fde68a 100%); padding: 0 3px; border-radius: 2px; }
+  .page .new { background: transparent; padding: 0; border-radius: 0; }
   @media print { .page .new { background: transparent; } }
   .hint { font-size: 10px; color: #6b7280; margin-top: 2px; }
 </style>
@@ -244,13 +244,13 @@ const DEFAULTS = {
     { label: 'Backend', value: 'SpringBoot, SpringCloud (Nacos, Ribbon, OpenFeign, Sentinel), SSM.' },
     { label: 'Database', value: 'MySQL, SQL Server, Oracle, PostgreSQL, Supabase (Vector DB), Redis, MongoDB.' },
     { label: 'CI/CD', value: 'Docker, Jenkins, Fastlane.' },
-    { label: 'AI / Agentic AI', value: '[new]MCP (building/integrating MCP servers), Skills, multi-Agent workflows (Claude Code, sub-agents).[/new] RAG systems, Stable Diffusion (T2I/I2I/V2V), Whisper + LLM translation, LLM API integration (OpenAI / Claude / Gemini).' }
+    { label: 'AI / Agentic AI', value: 'MCP (building/integrating MCP servers), Skills, multi-Agent workflows (Claude Code, sub-agents). RAG systems, Stable Diffusion (T2I/I2I/V2V), Whisper + LLM translation, LLM API integration (OpenAI / Claude / Gemini).' }
   ],
   projects: [
-    { name: 'AI Deployment Platform', desc: '[new]Deploy your own AI Agent in one click — end-to-end platform for provisioning and shipping custom AI agents without manual DevOps.[/new]' },
-    { name: 'AI Image Transformation', desc: '[new]Uses high-end diffusion models to transform user-uploaded images (style transfer, restoration, image-to-image).[/new]' },
-    { name: 'AI Music Master', desc: '[new]Generative AI that composes music in any style on demand, from prompt to finished track.[/new]' },
-    { name: 'AI IDE', desc: '[new]AI-driven web builder that lets non-programmers create and ship websites via natural language.[/new]' },
+    { name: 'AI Deployment Platform', desc: 'Deploy your own AI Agent in one click — end-to-end platform for provisioning and shipping custom AI agents without manual DevOps.' },
+    { name: 'AI Image Transformation', desc: 'Uses high-end diffusion models to transform user-uploaded images (style transfer, restoration, image-to-image).' },
+    { name: 'AI Music Master', desc: 'Generative AI that composes music in any style on demand, from prompt to finished track.' },
+    { name: 'AI IDE', desc: 'AI-driven web builder that lets non-programmers create and ship websites via natural language.' },
     { name: 'NextJS Deployments', desc: 'Multiple NextJS projects deployed on Vercel with modern web practices.' },
     { name: 'Lucene-Based Search Tool', desc: 'Search tool built on Lucene with efficient indexing.' },
     { name: 'Web Storage Website', desc: 'Self-hosted storage solution using Docker and Docker Compose.' }
@@ -311,7 +311,8 @@ function nl2nested(s) {
   return html;
 }
 function markNew(s) {
-  return s.replace(/\[new\]([\s\S]*?)\[\/new\]/g, '<span class="new">$1</span>');
+  // Strip [new]...[/new] markers without highlighting
+  return s.replace(/\[\/?new\]/g, '');
 }
 
 function renderPreview() {
