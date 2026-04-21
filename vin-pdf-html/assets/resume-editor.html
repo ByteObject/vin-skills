@@ -135,6 +135,28 @@
     font-size: 10pt;
   }
   .page .main ul li::marker { color: #3b82f6; }
+  /* Nested experience list: numbered top-level items as bold headers, sub-bullets indented */
+  .page .main ul.xp { list-style: none; padding-left: 0; margin: 6px 0 10px; }
+  .page .main ul.xp > li.xp-head {
+    list-style: none;
+    margin: 8px 0 2px;
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 10pt;
+  }
+  .page .main ul.xp > li.xp-head > ul {
+    list-style: disc;
+    margin: 2px 0 4px 0;
+    padding-left: 18px;
+    font-weight: 400;
+  }
+  .page .main ul.xp > li.xp-head > ul > li { color: #334155; font-size: 10pt; margin: 2px 0; }
+  .page .main ul.xp > li.xp-head > ul > li::marker { color: #3b82f6; }
+  .page .main ul.xp > li:not(.xp-head) {
+    list-style: disc;
+    margin-left: 18px;
+    color: #334155;
+  }
   .page .main p { margin: 2px 0 8px; color: #334155; }
   .page .new { background: linear-gradient(120deg,#fef3c7 0%,#fde68a 100%); padding: 0 3px; border-radius: 2px; }
   @media print { .page .new { background: transparent; } }
@@ -260,6 +282,32 @@ function esc(s) { return (s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;'
 function nl2li(s) {
   return (s||'').split('\n').filter(x=>x.trim()).map(x=>`<li>${markNew(esc(x))}</li>`).join('');
 }
+// Render bullets with nested indentation: lines starting with "1." "2." "A." etc.
+// or ending with ":" become sub-headers; subsequent non-header lines nest beneath.
+function nl2nested(s) {
+  const lines = (s||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const isHeader = l => /^(\d+\.\s|[A-Z]\.\s)/.test(l) || (/:\s*$/.test(l) && l.length < 80);
+  let html = '';
+  let openNested = false;
+  let topOpen = false;
+  const closeNested = () => { if (openNested) { html += '</ul></li>'; openNested = false; } };
+  const ensureTop = () => { if (!topOpen) { html += '<ul class="xp">'; topOpen = true; } };
+  for (const line of lines) {
+    ensureTop();
+    if (isHeader(line)) {
+      closeNested();
+      html += `<li class="xp-head">${markNew(esc(line))}<ul>`;
+      openNested = true;
+    } else if (openNested) {
+      html += `<li>${markNew(esc(line))}</li>`;
+    } else {
+      html += `<li>${markNew(esc(line))}</li>`;
+    }
+  }
+  closeNested();
+  if (topOpen) html += '</ul>';
+  return html;
+}
 function markNew(s) {
   return s.replace(/\[new\]([\s\S]*?)\[\/new\]/g, '<span class="new">$1</span>');
 }
@@ -292,14 +340,14 @@ function renderPreview() {
       ${data.experience.length ? `<section><h2>Work Experience</h2>
         ${data.experience.map(e => `
           <h3>${esc(e.role)} <span class="company">· ${esc(e.company)}</span><span class="meta">${esc(e.dates)}</span></h3>
-          <ul>${nl2li(e.bullets)}</ul>
+          ${nl2nested(e.bullets)}
         `).join('')}
       </section>` : ''}
 
       ${data.education.length ? `<section><h2>Education</h2>
         ${data.education.map(e => `
           <h3>${esc(e.degree)} <span class="company">· ${esc(e.school)}</span><span class="meta">${esc(e.dates)}</span></h3>
-          <ul>${nl2li(e.bullets)}</ul>
+          ${nl2nested(e.bullets)}
         `).join('')}
       </section>` : ''}
 
