@@ -6,7 +6,10 @@ Agent skills collection (Claude Code, Codex, and other agents that read `SKILL.m
 
 | Skill | Description |
 |-------|-------------|
+| [codex-cu](./codex-cu/) | Operate Windows desktop apps in the background (real clicks and keystrokes, without moving your cursor) through Codex's computer-use engine. |
 | [disk-analyzer](./disk-analyzer/) | Analyze C: drive disk space usage and compare with previous snapshots to track what's growing over time. |
+| [narrated-explainer](./narrated-explainer/) | Make a narrated explainer video about a repo, product, or topic with HyperFrames (16:9 notebook or 9:16 short with a lip-synced avatar). |
+| [newapi-model-setup](./newapi-model-setup/) | Add a new LLM model to a self-hosted new-api gateway so StartClaw / Hermes bots can use it. |
 | [qnap-smb-repair](./qnap-smb-repair/) | Diagnose and fix the recurring "Windows can't connect to the QNAP NAS / mapped drives won't reconnect" problem on VincentNAS (TVS-951N, 192.168.0.60). |
 | [vin-code-review](./vin-code-review/) | Generic Gemini Code Assist review workflow. |
 | [vin-github-issue-search](./vin-github-issue-search/) | Search GitHub issues in any repository using gh CLI. |

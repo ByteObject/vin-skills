@@ -17,7 +17,7 @@ Analyze C: drive disk space usage and compare with previous snapshots to track w
 
 ### Step 1: Run the diagnostic script
 ```bash
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Vincent\.claude\skills\disk-analyzer\diskscan.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\skills\disk-analyzer\diskscan.ps1"
 ```
 
 ### Step 2: Analyze the output
@@ -25,7 +25,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Users\Vincent\.claud
 The script automatically:
 1. Scans all major folders on C: drive
 2. Breaks down Users, AppData\Local, AppData\Roaming, dev caches, and Windows components
-3. Saves a timestamped JSON snapshot to `C:\Users\Vincent\.claude\skills\disk-analyzer\snapshots\`
+3. Saves a timestamped JSON snapshot to `%LOCALAPPDATA%\disk-analyzer\snapshots\`
 4. If a previous snapshot exists, shows a **comparison** highlighting:
    - Overall drive used/free change
    - Per-folder deltas (only changes > 50 MB)
@@ -56,7 +56,8 @@ Then continue with:
 4. **Recommendations** — Safe cleanup suggestions
 
 ## Snapshot History
-- Snapshots are stored as JSON in: `C:\Users\Vincent\.claude\skills\disk-analyzer\snapshots\`
+- Snapshots live outside the skill folder, so updating or reinstalling the skill never deletes them
+- Snapshots are stored as JSON in: `%LOCALAPPDATA%\disk-analyzer\snapshots\`
 - Each run creates a new snapshot with timestamp
 - Comparison always uses the most recent previous snapshot
 - To compare with older snapshots, read the JSON files directly

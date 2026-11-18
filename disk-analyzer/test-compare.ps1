@@ -1,5 +1,5 @@
 param(
-    [string]$SnapshotDir = "$PSScriptRoot\snapshots"
+    [string]$SnapshotDir = "$env:LOCALAPPDATA\disk-analyzer\snapshots"
 )
 
 # Helpers copied verbatim from diskscan.ps1. Keep in sync.
