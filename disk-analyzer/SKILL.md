@@ -1,3 +1,8 @@
+---
+name: disk-analyzer
+description: "Analyze C: drive disk space usage and compare with previous snapshots to track what's growing over time. Use when user asks why the C drive is full, disk space is shrinking, wants to see where disk space is going, or wants to track disk usage changes over time."
+---
+
 # Disk Analyzer Skill
 
 ## Purpose
